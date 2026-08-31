@@ -276,15 +276,25 @@ static zend_class_entry* msgpack_unserialize_class(zval **container, zend_string
         }
 
         /* Check for unserialize callback */
+#if PHP_VERSION_ID >= 80600
+        /* php 8.6 turned the unserialize_callback_func global into a zend_string* */
+        if ((PG(unserialize_callback_func) == NULL) ||
+            (ZSTR_LEN(PG(unserialize_callback_func)) == 0)) {
+#else
         if ((PG(unserialize_callback_func) == NULL) ||
             (PG(unserialize_callback_func)[0] == '\0')) {
+#endif
             incomplete_class = 1;
             ce = PHP_IC_ENTRY;
             break;
         }
 
         /* Call unserialize callback */
+#if PHP_VERSION_ID >= 80600
+        ZVAL_STR(&user_func, zend_string_dup(PG(unserialize_callback_func), false));
+#else
         ZVAL_STRING(&user_func, PG(unserialize_callback_func));
+#endif
         ZVAL_STR(&args[0], class_name);
 
         func_call_status = call_user_function(CG(function_table), NULL, &user_func, &retval, 1, args);
