@@ -30,5 +30,5 @@ OK
 --EXPECTF--
 Test
 
-Warning: [msgpack] (msgpack_unserialize_map_item) TestEnum::B is not an Enum case but a constant in %s/issue186.3.php on line 15
+Warning: [msgpack] (msgpack_unserialize_map_item) Enum case B does not exist in Enum TestEnum in %s/issue186.3.php on line 15
 OK
