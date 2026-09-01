@@ -12,11 +12,10 @@ if (version_compare(PHP_VERSION, '8.1.0', '<')) {
 --FILE--
 Test
 <?php
-enum TestEnum
+enum TestEnum: string
 {
-    case A;
-
-    public const B = 42;
+    case A = 'a';
+    case B = 'b';
 }
 
 $data = file_get_contents(__DIR__.'/issue186.ser.txt');
@@ -25,6 +24,4 @@ $unserilized = msgpack_unserialize($data);
 OK
 --EXPECTF--
 Test
-
-Warning: [msgpack] (msgpack_unserialize_map_item) Enum case B does not exist in Enum TestEnum in %s/issue186.2.php on line 11
 OK

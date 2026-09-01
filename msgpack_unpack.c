@@ -723,34 +723,13 @@ int msgpack_unserialize_map_item(msgpack_unpack_data *unpack, zval **container, 
                     }
 
                     /* found Enum does not contain specified case */
-                    zend_class_constant *constant_ptr = zend_hash_find_ptr(
-                        &ce->constants_table,
+                    zend_class_constant *constant = zend_hash_find_ptr(
+                        CE_CONSTANTS_TABLE(ce),
                         Z_STR_P(val));
-                    if (constant_ptr == NULL) {
+                    if (constant == NULL || !(ZEND_CLASS_CONST_FLAGS(constant) & ZEND_CLASS_CONST_IS_CASE)) {
                         MSGPACK_WARNING(
                             "[msgpack] (%s) Enum case %s does not exist in Enum %s",
                             __FUNCTION__, Z_STRVAL_P(val), ZSTR_VAL(ce->name));
-
-                        MSGPACK_UNSERIALIZE_FINISH_MAP_ITEM(unpack, key, val);
-                        return 0;
-                    }
-
-                    /* found Enum property is not a case but a constant */
-                    zval *constant = &constant_ptr->value;
-                    if (Z_TYPE_P(constant) == IS_OBJECT) {
-                        zend_object *obj = Z_OBJ_P(constant);
-                        if (!instanceof_function(obj->ce, ce)) {
-                            MSGPACK_WARNING(
-                                "[msgpack] (%s) %s::%s is not an Enum case but a constant",
-                                __FUNCTION__, ZSTR_VAL(ce->name), Z_STRVAL_P(val));
-
-                            MSGPACK_UNSERIALIZE_FINISH_MAP_ITEM(unpack, key, val);
-                            return 0;
-                        }
-                    } else {
-                        MSGPACK_WARNING(
-                            "[msgpack] (%s) %s::%s is not an Enum case but a constant",
-                            __FUNCTION__, ZSTR_VAL(ce->name), Z_STRVAL_P(val));
 
                         MSGPACK_UNSERIALIZE_FINISH_MAP_ITEM(unpack, key, val);
                         return 0;
